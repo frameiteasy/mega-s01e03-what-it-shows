@@ -34,3 +34,9 @@ Support desk. Decision records: whoever signed them.
 ---
 
 Exported 2026-10-04 from the `support` repo, `apps/kb/` → `src/`.
+
+## #4471 problems page (S01E03)
+
+- Source: `src/routes/kb/incidents/4471/problems/+page.svx` (logic in `src/lib/kb/problems.ts`, `ProblemTable.svelte`, ticket links in `src/lib/data/tickets-4471.json`)
+- As the desk sees it: `rendered/kb/incidents/4471/problems.html` (static build, `npx vite build`), screenshot `rendered/kb/incidents/4471/problems.jpg`
+- Tickets: issues #1 (parser, 374), #2 (hint, 33), #3 (one-day, 5)
