@@ -19,7 +19,7 @@ signature: v1.eyJzdWIiOiI4NDg3IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYX
   const REPO = 'https://github.com/frameiteasy/mega-s01e03-what-it-shows/issues';
   const merged = uniqueById(reports).filter((r) => r.mergedInto === 4471);
   const oneDay = merged.filter((r) => notes.oneDayMove.includes(r.id));
-  const swap = merged.filter((r) => !notes.oneDayMove.includes(r.id) && causeOf(r, tenantOf(r)) !== null);
+  const swap = merged.filter((r) => causeOf(r, tenantOf(r)) !== null);
   const problems = [
     { ticket: 1, name: 'Day and month swapped', count: swap.length },
     { ticket: 3, name: 'Date moves by one day', count: oneDay.length },
