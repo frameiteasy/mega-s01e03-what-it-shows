@@ -1,14 +1,9 @@
-// What #4471 actually holds, problem by problem. causes.ts sorts a report by its tenant; that
-// cannot see a report whose body tells a different story. A one-day move (desk-notes.json) is not
-// a flipped month, whatever its tenant: it is a problem of its own, not a footnote.
+// What #4471 actually holds, problem by problem: the cause each report shares (causes.ts), with
+// every problem on a ticket of its own. A report the desk read as a one-day move (desk-notes.json)
+// stays with its cause; it is footnoted, not split off.
 import { causeOf, uniqueById, type Report, type Tenant } from '#lib/kb/causes';
 
-export type Problem = 'parser' | 'hint' | 'one-day' | 'unplaced';
-
-export function problemOf(r: Report, t: Tenant | undefined, oneDay: readonly string[]): Problem {
-  if (oneDay.includes(r.id)) return 'one-day';
-  return causeOf(r, t) ?? 'unplaced';
-}
+export type Problem = 'parser' | 'hint' | 'unplaced';
 
 export type ProblemGroup = {
   problem: Problem;
@@ -22,12 +17,11 @@ export function groupByProblem(
   reports: Report[],
   ticket: number,
   tenantOf: (r: Report) => Tenant | undefined,
-  oneDay: readonly string[],
 ): { merged: Report[]; groups: ProblemGroup[] } {
   const merged = uniqueById(reports).filter((r) => r.mergedInto === ticket);
   const by = new Map<Problem, Report[]>();
   for (const r of merged) {
-    const p = problemOf(r, tenantOf(r), oneDay);
+    const p = causeOf(r, tenantOf(r)) ?? 'unplaced';
     by.set(p, [...(by.get(p) ?? []), r]);
   }
   const groups = [...by.entries()]

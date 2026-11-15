@@ -11,11 +11,10 @@
   const WHAT: Record<Problem, string> = {
     parser: 'shared parser reads day-first dates month first',
     hint: 'booking-v3 form hints MM/DD/YYYY, then reads the date day first',
-    'one-day': 'date moves by one day, not a flipped month',
     unplaced: 'no tenant on file: cause unknown',
   };
 
-  const result = $derived(groupByProblem(reports as Report[], ticket, tenantOf, notes.oneDayMove));
+  const result = $derived(groupByProblem(reports as Report[], ticket, tenantOf));
   const counted = $derived(result.groups.reduce((n, g) => n + g.reports.length, 0));
   const link = (p: Problem) => (tickets as Record<string, string>)[p] ?? '';
 </script>
@@ -44,11 +43,19 @@
   </tbody>
 </table>
 
+{#each result.groups as g (g.problem)}
+  {@const moved = g.reports.filter((r) => notes.oneDayMove.includes(r.id)).length}
+  {#if moved}
+    <p class="note">{moved} of the <code>{g.problem}</code> reports read as a one-day move; counted with their cause, on its ticket.</p>
+  {/if}
+{/each}
+
 {#if counted !== result.merged.length}
   <p class="warn">The groups hold {counted} reports, the ticket {result.merged.length}. Something is counted twice or not at all.</p>
 {/if}
 
 <style>
   .sum { font-size: 1.1rem; }
+  .note { color: var(--muted); font-size: 0.85em; }
   .warn { color: var(--warn); font-weight: 600; }
 </style>
