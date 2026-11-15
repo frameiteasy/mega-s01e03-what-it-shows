@@ -8,9 +8,22 @@ signature: v1.eyJzdWIiOiI4NDg3IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYX
 ---
 
 <script>
+  import reports from '#lib/data/reports-4471.json';
+  import notes from '#lib/data/desk-notes.json';
+  import { causeOf, uniqueById } from '#lib/kb/causes';
+  import { tenantOf } from '#lib/kb/locales';
   import CauseTable from '#lib/kb/CauseTable.svelte';
   import Callout from '#lib/kb/Callout.svelte';
   import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const REPO = 'https://github.com/frameiteasy/mega-s01e03-what-it-shows/issues';
+  const merged = uniqueById(reports).filter((r) => r.mergedInto === 4471);
+  const oneDay = merged.filter((r) => notes.oneDayMove.includes(r.id));
+  const swap = merged.filter((r) => !notes.oneDayMove.includes(r.id) && causeOf(r, tenantOf(r)) !== null);
+  const problems = [
+    { ticket: 1, name: 'Day and month swapped', count: swap.length },
+    { ticket: 3, name: 'Date moves by one day', count: oneDay.length },
+  ];
 </script>
 
 [#4471](/kb/incidents/4471) is marked known: one issue, one fix queued. Read what the reports
@@ -21,6 +34,15 @@ Not one issue. Each problem below has its own ticket.
 </Callout>
 
 ## What #4471 holds
+
+<table>
+  <thead><tr><th>problem</th><th>reports</th><th>ticket</th></tr></thead>
+  <tbody>
+    {#each problems as p (p.ticket)}
+      <tr><td>{p.name}</td><td>{p.count}</td><td><a href="{REPO}/{p.ticket}">#{p.ticket}</a></td></tr>
+    {/each}
+  </tbody>
+</table>
 
 The desk's own view of the ticket, counted from the export:
 
