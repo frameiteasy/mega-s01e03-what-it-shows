@@ -4,7 +4,7 @@ title: '#4471 · three problems, not one'
 owner: Konrad
 status: open
 reviewed: 2026-11-15
-signature: Konrad
+signature: v1.eyJzdWIiOiI4NDg3IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTQ3MzE4NTksImV4cCI6MTc5NDgxODI1OX0.qTbUh8Y23jwSA9TFc1q_pnvVuiEmfgVFM2ySzCKyTYM
 ---
 
 <script>
