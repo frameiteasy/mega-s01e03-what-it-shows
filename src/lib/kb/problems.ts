@@ -1,12 +1,12 @@
 // What #4471 actually holds, problem by problem. causes.ts tells `parser` from `hint` by tenant
 // and channel, but both show the same thing: day and month swapped. A one-day move
-// (desk-notes.json) shows something else, whatever its tenant: it is a problem of its own.
+// (desk-notes.json) shows something else: a problem of its own. Counts follow the desk's view
+// (CauseTable): every report stays under its cause, so the swap count includes the one-day moves.
 import { causeOf, uniqueById, type Report, type Tenant } from '#lib/kb/causes';
 
 export type Problem = 'swap' | 'one-day' | 'unplaced';
 
-export function problemOf(r: Report, t: Tenant | undefined, oneDay: readonly string[]): Problem {
-  if (oneDay.includes(r.id)) return 'one-day';
+export function problemOf(r: Report, t: Tenant | undefined): Problem {
   return causeOf(r, t) ? 'swap' : 'unplaced';
 }
 
@@ -27,9 +27,11 @@ export function groupByProblem(
   const merged = uniqueById(reports).filter((r) => r.mergedInto === ticket);
   const by = new Map<Problem, Report[]>();
   for (const r of merged) {
-    const p = problemOf(r, tenantOf(r), oneDay);
+    const p = problemOf(r, tenantOf(r));
     by.set(p, [...(by.get(p) ?? []), r]);
   }
+  const moved = merged.filter((r) => oneDay.includes(r.id));
+  if (moved.length) by.set('one-day', moved);
   const groups = [...by.entries()]
     .map(([problem, rs]) => {
       const days = rs.map((r) => r.receivedAt.slice(0, 10)).sort();

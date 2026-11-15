@@ -36,7 +36,8 @@ one ticket: whoever fixes it checks both the shared parser and the booking-v3 fo
 **`one-day`: the date moves by one day.** Tuesday 12 May shows as Monday 11 May; a client in
 Lisbon gets Tuesday and a client in Toronto gets Monday for the same meeting; an invite arrives
 before the booking. Nothing is swapped. The desk noted these reports by hand
-(`desk-notes.json`) and still counted them under `parser` by tenant. They point at time zones,
+(`desk-notes.json`) and its view keeps them under `parser` by tenant, so they also count in
+`swap` above. They point at time zones,
 not at date order, and the parser fix will not close them.
 
 ## How they were counted

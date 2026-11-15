@@ -15,7 +15,6 @@
   };
 
   const result = $derived(groupByProblem(reports as Report[], ticket, tenantOf, notes.oneDayMove));
-  const counted = $derived(result.groups.reduce((n, g) => n + g.reports.length, 0));
   const link = (p: Problem) => (tickets as Record<string, string>)[p] ?? '';
 </script>
 
@@ -43,11 +42,9 @@
   </tbody>
 </table>
 
-{#if counted !== result.merged.length}
-  <p class="warn">The groups hold {counted} reports, the ticket {result.merged.length}. Something is counted twice or not at all.</p>
-{/if}
+<p class="note">Counted the desk's way (<code>CauseTable</code>): every report stays under its cause, so <code>swap</code> includes the reports read as a one-day move.</p>
 
 <style>
   .sum { font-size: 1.1rem; }
-  .warn { color: var(--warn); font-weight: 600; }
+  .note { color: var(--muted); font-size: 0.85em; }
 </style>
