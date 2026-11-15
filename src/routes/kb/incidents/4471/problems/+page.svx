@@ -1,0 +1,57 @@
+---
+layout: runbook
+title: '#4471 · three problems, not one'
+owner: Konrad
+status: open
+reviewed: 2026-11-15
+signature: Konrad
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+</script>
+
+[#4471](/kb/incidents/4471) is marked known: one issue, one fix queued. The reports in it tell
+three stories. Fixing the parser closes one of them.
+
+<Callout kind="warn">
+Not one issue. Each problem below has its own ticket, and only one of them is the parser.
+</Callout>
+
+## What #4471 holds
+
+<ProblemTable ticket={4471} />
+
+## The three problems
+
+**`parser`: the shared parser reads every date month first.** Every tenant on file writes the
+day first, so their dates come out with day and month swapped: booked 2 March, invited for
+3 February. This is the bug the queued fix is for.
+
+**`hint`: the booking-v3 form asks for the wrong order.** Its date field prints `MM/DD/YYYY`
+under it. People type what the hint says, and the form reads the date the tenant's way, day
+first. The symptom looks the same as `parser`, so intake cannot tell them apart. The parser fix
+does not touch it: it only happens on the `form` channel of booking-v3 tenants, and it needs
+the hint (or the form's reading) changed.
+
+**`one-day`: the date moves by one day.** Tuesday 12 May shows as Monday 11 May; a client in
+Lisbon gets Tuesday and a client in Toronto gets Monday for the same meeting; an invite arrives
+before the booking. Nothing is swapped. The desk noted these reports by hand
+(`desk-notes.json`) and still counted them under `parser`. They point at time zones, not at
+date order, and the parser fix will not close them.
+
+## How they were counted
+
+- One report, one id: the ticket export repeats some reports across pages, so duplicates are
+  dropped before counting.
+- By tenant and channel, not by intake's tag: intake guesses from the reporter's browser and is
+  wrong often enough that the tag cannot be trusted as a count.
+- Not by subject: the same subject line covers different problems
+  ([decision 0001](/kb/decisions/0001-dedupe-by-subject) merges on subject alone; that is how
+  all three ended up in one ticket).
+- Every number on this page is computed from the export when the page renders, so it follows
+  the data as the desk keeps working.
+
+<RenderStamp {signature} />
