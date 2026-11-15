@@ -1,6 +1,6 @@
 ---
 layout: runbook
-title: '#4471 · two problems, not one'
+title: '#4471 · two causes, two tickets'
 owner: Konrad
 status: open
 reviewed: 2026-11-15
@@ -8,70 +8,44 @@ signature: v1.eyJzdWIiOiI4NDg3IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYX
 ---
 
 <script>
-  import reports from '#lib/data/reports-4471.json';
-  import notes from '#lib/data/desk-notes.json';
-  import { causeOf, uniqueById } from '#lib/kb/causes';
-  import { tenantOf } from '#lib/kb/locales';
   import CauseTable from '#lib/kb/CauseTable.svelte';
   import Callout from '#lib/kb/Callout.svelte';
   import RenderStamp from '#lib/kb/RenderStamp.svelte';
-
-  const REPO = 'https://github.com/frameiteasy/mega-s01e03-what-it-shows/issues';
-  const merged = uniqueById(reports).filter((r) => r.mergedInto === 4471);
-  const oneDay = merged.filter((r) => notes.oneDayMove.includes(r.id));
-  const swap = merged.filter((r) => causeOf(r, tenantOf(r)) !== null);
-  const problems = [
-    { ticket: 1, name: 'Day and month swapped', count: swap.length },
-    { ticket: 3, name: 'Date moves by one day', count: oneDay.length },
-  ];
 </script>
 
-[#4471](/kb/incidents/4471) is marked known: one issue, one fix queued. Read what the reports
-show and it holds two problems. The queued parser fix is aimed at one of them.
+[#4471](/kb/incidents/4471) is marked known: one issue, one fix queued. Its own table shows
+two causes. The queued parser fix closes one of them.
 
 <Callout kind="warn">
-Not one issue. Each problem below has its own ticket.
+Not one issue. The table below marks <code>hint</code> "no ticket of its own". It has one now.
 </Callout>
 
 ## What #4471 holds
-
-<table>
-  <thead><tr><th>problem</th><th>reports</th><th>ticket</th></tr></thead>
-  <tbody>
-    {#each problems as p (p.ticket)}
-      <tr><td>{p.name}</td><td>{p.count}</td><td><a href="{REPO}/{p.ticket}">#{p.ticket}</a></td></tr>
-    {/each}
-  </tbody>
-</table>
-
-The desk's own view of the ticket, counted from the export:
 
 <CauseTable ticket={4471} />
 
 ## The two problems
 
-**Day and month swapped: [ticket #1](https://github.com/frameiteasy/mega-s01e03-what-it-shows/issues/1).**
-Booked 2 March, invited for 3 February. Every tenant on file writes the day first, and the date
-is read month first. The table splits these reports into `parser` and `hint` by tenant and
-channel, but both rows show the same thing, and the reporters cannot tell which way in they
-used. One problem, one ticket: it covers both rows. Whoever fixes it checks both the shared
-parser and the booking-v3 form's `MM/DD/YYYY` hint.
+**`parser`: [ticket #1](https://github.com/frameiteasy/mega-s01e03-what-it-shows/issues/1).**
+The shared parser reads every date month first. Every tenant on file writes the day first, so
+their dates come out with day and month swapped: booked 2 March, invited for 3 February. This is
+the bug the queued fix is for. The reports the note under the table reads as a one-day move are
+filed here by tenant and counted in this row.
 
-**The date moves by one day: [ticket #3](https://github.com/frameiteasy/mega-s01e03-what-it-shows/issues/3).**
-Tuesday 12 May shows as Monday 11 May; a client in Lisbon gets Tuesday and a client in Toronto
-gets Monday for the same meeting; an invite arrives before the booking. Nothing is swapped.
-These are the reports the note under the table counts as read as a one-day move
-(`desk-notes.json`). The desk files them under `parser` by tenant, but they point at time zones,
-not at date order, and the parser fix will not close them.
+**`hint`: [ticket #3](https://github.com/frameiteasy/mega-s01e03-what-it-shows/issues/3).**
+The booking-v3 form prints `MM/DD/YYYY` under its date field. People type what the hint says,
+and the form reads the date the tenant's way, day first. The symptom looks the same as `parser`,
+so intake cannot tell them apart, and the parser fix does not touch it. It happens only on the
+`form` channel of booking-v3 tenants, and it needs the hint changed.
 
 ## How they were counted
 
-- With the desk's own view, as exported: one report per id, by tenant and channel.
+- With the desk's own view, as exported: the table above, one report per id, by tenant and
+  channel. The counts on both tickets are its two rows.
 - Not by intake's tag: intake guesses from the reporter's browser, and the table shows how often
   it disagrees.
 - Not by subject: the same subject line covers both problems
   ([decision 0001](/kb/decisions/0001-dedupe-by-subject) merges on subject alone; that is how
   both ended up in one ticket).
-- Every number on this page is computed from the export when the page renders.
 
 <RenderStamp {signature} />

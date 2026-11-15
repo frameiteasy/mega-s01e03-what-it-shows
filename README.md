@@ -39,4 +39,4 @@ Exported 2026-10-04 from the `support` repo, `apps/kb/` → `src/`.
 
 - Source: `src/routes/kb/incidents/4471/problems/+page.svx` (uses only the kb's own components, as exported)
 - As the desk sees it: `rendered/kb/incidents/4471/problems.html` (static build, `npx vite build`), screenshot `rendered/kb/incidents/4471/problems.jpg`
-- Tickets: issues #1 (swap, 407), #3 (one-day, 5)
+- Tickets: issues #1 (parser, 379), #3 (hint, 33)
