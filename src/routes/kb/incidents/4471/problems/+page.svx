@@ -13,11 +13,11 @@ signature: v1.eyJzdWIiOiI4NDg3IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYX
   import Callout from '#lib/kb/Callout.svelte';
 </script>
 
-[#4471](/kb/incidents/4471) is marked known: one issue, one fix queued. The reports in it hold two
-problems. Fixing the parser closes one of them.
+[#4471](/kb/incidents/4471) is marked known: one issue, one fix queued. Read what the reports
+show and it holds two problems. The queued parser fix is aimed at one of them.
 
 <Callout kind="warn">
-Not one issue. Each problem below has its own ticket, and only one of them is the parser.
+Not one issue. Each problem below has its own ticket.
 </Callout>
 
 ## What #4471 holds
@@ -26,27 +26,26 @@ Not one issue. Each problem below has its own ticket, and only one of them is th
 
 ## The two problems
 
-**`parser`: the shared parser reads every date month first.** Every tenant on file writes the
-day first, so their dates come out with day and month swapped: booked 2 March, invited for
-3 February. This is the bug the queued fix is for.
+**`swap`: day and month come out swapped.** Booked 2 March, invited for 3 February. Every
+tenant on file writes the day first, and the date is read month first. The kb's own logic
+(`causes.ts`) splits these reports into `parser` and `hint` by tenant and channel, but every one
+of them shows the same thing, and the reporters cannot tell which way in they used. One problem,
+one ticket: whoever fixes it checks both the shared parser and the booking-v3 form's
+`MM/DD/YYYY` hint.
 
-**`hint`: the booking-v3 form asks for the wrong order.** Its date field prints `MM/DD/YYYY`
-under it. People type what the hint says, and the form reads the date the tenant's way, day
-first. The symptom looks the same as `parser`, so intake cannot tell them apart. The parser fix
-does not touch it: it only happens on the `form` channel of booking-v3 tenants, and it needs
-the hint (or the form's reading) changed.
-
-**One-day moves stay with their cause.** The desk read a few reports as a date moving by one
-day (`desk-notes.json`). They come from the same tenants and channels as the rest and are
-counted with their cause, on its ticket, with a note under the table.
+**`one-day`: the date moves by one day.** Tuesday 12 May shows as Monday 11 May; a client in
+Lisbon gets Tuesday and a client in Toronto gets Monday for the same meeting; an invite arrives
+before the booking. Nothing is swapped. The desk noted these reports by hand
+(`desk-notes.json`) and still counted them under `parser` by tenant. They point at time zones,
+not at date order, and the parser fix will not close them.
 
 ## How they were counted
 
 - One report, one id: the ticket export repeats some reports across pages, so duplicates are
   dropped before counting.
-- By tenant and channel, not by intake's tag: intake guesses from the reporter's browser and is
-  wrong often enough that the tag cannot be trusted as a count.
-- Not by subject: the same subject line covers different problems
+- By what the report shows, not by intake's tag: intake guesses from the reporter's browser and
+  is wrong often enough that the tag cannot be trusted as a count.
+- Not by subject: the same subject line covers both problems
   ([decision 0001](/kb/decisions/0001-dedupe-by-subject) merges on subject alone; that is how
   both ended up in one ticket).
 - Every number on this page is computed from the export when the page renders, so it follows

@@ -1,9 +1,14 @@
-// What #4471 actually holds, problem by problem: the cause each report shares (causes.ts), with
-// every problem on a ticket of its own. A report the desk read as a one-day move (desk-notes.json)
-// stays with its cause; it is footnoted, not split off.
+// What #4471 actually holds, problem by problem. causes.ts tells `parser` from `hint` by tenant
+// and channel, but both show the same thing: day and month swapped. A one-day move
+// (desk-notes.json) shows something else, whatever its tenant: it is a problem of its own.
 import { causeOf, uniqueById, type Report, type Tenant } from '#lib/kb/causes';
 
-export type Problem = 'parser' | 'hint' | 'unplaced';
+export type Problem = 'swap' | 'one-day' | 'unplaced';
+
+export function problemOf(r: Report, t: Tenant | undefined, oneDay: readonly string[]): Problem {
+  if (oneDay.includes(r.id)) return 'one-day';
+  return causeOf(r, t) ? 'swap' : 'unplaced';
+}
 
 export type ProblemGroup = {
   problem: Problem;
@@ -17,11 +22,12 @@ export function groupByProblem(
   reports: Report[],
   ticket: number,
   tenantOf: (r: Report) => Tenant | undefined,
+  oneDay: readonly string[],
 ): { merged: Report[]; groups: ProblemGroup[] } {
   const merged = uniqueById(reports).filter((r) => r.mergedInto === ticket);
   const by = new Map<Problem, Report[]>();
   for (const r of merged) {
-    const p = causeOf(r, tenantOf(r)) ?? 'unplaced';
+    const p = problemOf(r, tenantOf(r), oneDay);
     by.set(p, [...(by.get(p) ?? []), r]);
   }
   const groups = [...by.entries()]
